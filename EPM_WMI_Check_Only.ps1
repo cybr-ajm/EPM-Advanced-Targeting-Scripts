@@ -52,5 +52,8 @@ if($performWMICheck){
     if(!(Get-WMIStatus)){
         Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 2020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check Failed - Exiting 1" -Category 1 -RawData 10,20
         exit 1;
+    }else{
+        Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 1020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check Succeeded - Exiting 0" -Category 1 -RawData 10,20
+        exit 0;
     }
 }
