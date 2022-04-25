@@ -25,35 +25,38 @@
 $performWMICheck = $true
 $WMIClassName = "Win32_ComputerSystem"
 $WMIPropertyName = "Name"
-$requiredWMIPropertyValue = "EPMWKS01"
+$requiredWMIPropertyValue = "EPWKS01"
 
 function Get-WMIStatus(){
-    $WMIPropertyValue
-
+   $WMIPropertyValue
+   
     try{
         $WMIPropertyValue = (Get-CimInstance -ClassName $WMIClassName -ErrorAction Stop).$WMIPropertyName
         Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 1001 -EntryType Information -Message "EPM Condition Check - $WMIClassName.$WMIPropertyName is $WMIPropertyValue." -Category 1 -RawData 10,20
     }
     catch{
         Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 2001 -EntryType Information -Message "EPM Condition Check - Error checking WMI Property. Class may not exist." -Category 1 -RawData 10,20
-        return $false
+        return $false;
     }
-
+    
     if($WMIPropertyValue -eq $requiredWMIPropertyValue){
         Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 1002 -EntryType Information -Message "EPM Condition Check - WMI Property Value of $WMIPropertyValue matches required value of $requiredWMIPropertyValue." -Category 1 -RawData 10,20
-        return $true
+        return $true;
     }else{
         Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 2002 -EntryType Information -Message "EPM Condition Check - WMI Property Value of $WMIPropertyValue does not match required value of $requiredWMIPropertyValue." -Category 1 -RawData 10,20
-        return $false
+        return $false;
     }
+    
 }
 
 if($performWMICheck){
-    if(!(Get-WMIStatus)){
-        Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 2020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check Failed - Exiting 1" -Category 1 -RawData 10,20
-        exit 1;
-    }else{
-        Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 1020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check Succeeded - Exiting 0" -Category 1 -RawData 10,20
+    $wmiStat = Get-WMIStatus
+ 
+    if($wmiStat -eq "True"){
+        Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 2020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check succeeded - Exiting 0" -Category 1 -RawData 10,20
         exit 0;
+    }else{
+        Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 1020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check Failed - Exiting 1" -Category 1 -RawData 10,20
+        exit 1;
     }
 }
