@@ -29,11 +29,11 @@
 $performWMICheck = $true
 $WMIClassName = "Win32_ComputerSystem"
 $WMIPropertyName = "Name"
-$requiredWMIPropertyValue = "EPMWKS01"
+$requiredWMIPropertyValue = "EPMWS01"
 
 ### Variables for Computer OU Check ###
 $performOUCheck = $true
-$requiredOU = "OU=EPM Workstations,OU=CyberArk,DC=CYBR,DC=COM"
+$requiredOU = "OU=EPM Workstatio1ns,OU=CyberArk,DC=CYBR,DC=COM"
 
 function Get-OUStatus(){
 $machineDN = Get-ItemPropertyValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\DataStore\Machine\0" -Name "DNName"
@@ -77,8 +77,13 @@ function Get-WMIStatus(){
     }
 }
 
+
 if($performWMICheck){
-    if(!(Get-WMIStatus)){
+    $wmiStat = Get-WMIStatus
+ 
+    if($wmiStat -eq "True"){
+        Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 2020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check succeeded - Exiting 0" -Category 1 -RawData 10,20
+    }else{
         Write-EventLog -LogName "Application" -Source "CyberArk EPM" -EventID 1020 -EntryType Information -Message "EPM Policy Checks Complete - WMI check Failed - Exiting 1" -Category 1 -RawData 10,20
         exit 1;
     }
